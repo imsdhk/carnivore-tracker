@@ -33,8 +33,8 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font:17px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  font-variant-numeric:tabular-nums;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
-header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(10px + env(safe-area-inset-top)) 16px 8px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+  font-variant-numeric:tabular-nums;padding-bottom:calc(84px + var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)))}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(10px + var(--safe-area-inset-top,env(safe-area-inset-top,0px))) 16px 8px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
 header h1{font-size:20px;margin:0}
 header .sub{font-size:13px;color:var(--muted)}
 main{max-width:720px;margin:0 auto;padding:12px}
@@ -83,7 +83,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-
 .switch i:before{content:"";position:absolute;width:26px;height:26px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
 .switch input:checked+i{background:var(--accent)}
 .switch input:checked+i:before{transform:translateX(24px)}
-nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px))}
 nav.tabs button{flex:1;min-height:64px;border:0;background:none;color:var(--muted);font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:inherit}
 nav.tabs button b{font-size:22px;font-weight:400}
 nav.tabs button.on{color:var(--accent)}
@@ -109,9 +109,11 @@ nav.tabs button.on{color:var(--accent)}
 .tag.r{background:#dc2626;color:#fff}
 .photo-prev{max-width:100%;max-height:260px;border-radius:12px;margin-top:8px;display:block}
 .hist img{max-width:90px;max-height:90px;border-radius:8px;float:right;margin-left:8px}
-.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#18181b;color:#fff;padding:12px 18px;border-radius:12px;font-size:15px;z-index:20;opacity:0;transition:.25s;pointer-events:none;max-width:90%}
+.modal{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal .card{max-width:480px;margin:0}
+.toast{position:fixed;left:50%;bottom:calc(90px + var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)));transform:translateX(-50%);background:#18181b;color:#fff;padding:12px 18px;border-radius:12px;font-size:15px;z-index:20;opacity:0;transition:.25s;pointer-events:none;max-width:90%}
 .toast.show{opacity:1}
-.savebar{position:sticky;bottom:calc(72px + env(safe-area-inset-bottom));z-index:4;display:flex;gap:8px;padding-top:6px}
+.savebar{position:sticky;bottom:calc(72px + var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px)));z-index:4;display:flex;gap:8px;padding-top:6px}
 .savebar .btn{flex:1;min-height:56px;font-size:18px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
 .muted{color:var(--muted);font-size:14px}
 .hint{font-size:13px;color:var(--muted);margin-top:4px}
@@ -297,6 +299,8 @@ details[open] summary:after{content:"▴"}
     <h2>About</h2>
     <p class="muted">Carnivore 90 tracker · works offline · install via your browser menu → “Add to Home screen”.<br>Safety alerts are simple rules, not a diagnosis. Seek urgent care for nausea/vomiting, confusion, fast or deep breathing, chest pain, or fainting.</p>
     <p class="muted" id="storageInfo"></p>
+    <p class="muted"><b>Not medical advice.</b> This app is a personal log and does not provide diagnosis or treatment. Always consult a qualified healthcare professional.</p>
+    <div class="grid"><a class="btn" href="privacy.html">Privacy policy</a><button class="btn" id="showDisc">Disclaimer</button></div>
   </div>
 </section>
 </main>
@@ -308,12 +312,25 @@ details[open] summary:after{content:"▴"}
   <button data-tab="set"><b>⚙️</b>Settings</button>
 </nav>
 <div class="toast" id="toast"></div>
+<div class="modal" id="disclaimer" hidden role="dialog" aria-modal="true" aria-labelledby="discTitle">
+  <div class="card">
+    <h2 id="discTitle">⚕️ Medical disclaimer</h2>
+    <p>This app is a personal log only. It is <b>not medical advice</b> and does not diagnose, treat or prevent any condition. Warnings in the app are simple rules and may miss problems.</p>
+    <p>Talk to your doctor before changing diet, fasting, or medication (such as metformin). If you feel very unwell – nausea, vomiting, confusion, fast breathing, chest pain – seek urgent care or call your local emergency number.</p>
+    <p class="muted">Your data stays on this device. Nothing is uploaded. <a href="privacy.html">Privacy policy</a></p>
+    <button class="btn primary block" id="discOk">I understand</button>
+  </div>
+</div>
 
 <script>
 (function(){
 "use strict";
 var KEY_E="carnivore90_entries_v1", KEY_S="carnivore90_settings_v1";
 var $=function(id){return document.getElementById(id)};
+var CAP=window.Capacitor, NATIVE=!!(CAP&&CAP.isNativePlatform&&CAP.isNativePlatform());
+var PL=NATIVE?(CAP.Plugins||{}):{};
+/* on Android/iOS mirror storage into native Preferences as a backup of WebView localStorage */
+function mirror(k){if(NATIVE&&PL.Preferences){try{PL.Preferences.set({key:k,value:localStorage.getItem(k)||""})}catch(e){}}}
 var DAY=86400000;
 
 /* ---------- helpers ---------- */
@@ -336,10 +353,10 @@ function toast(msg){var t=$("toast");t.textContent=msg;t.classList.add("show");c
 
 /* ---------- storage ---------- */
 function loadE(){try{var o=JSON.parse(localStorage.getItem(KEY_E)||"{}");return (o&&typeof o==="object"&&!Array.isArray(o))?o:{}}catch(e){return {}}}
-function saveE(){try{localStorage.setItem(KEY_E,JSON.stringify(entries));return true}catch(e){alert("Could not save – storage is full. Try removing some photos or export & clear old data.\n\n"+e.message);return false}}
+function saveE(){try{localStorage.setItem(KEY_E,JSON.stringify(entries));mirror(KEY_E);return true}catch(e){alert("Could not save – storage is full. Try removing some photos or export & clear old data.\n\n"+e.message);return false}}
 var DEF_S={startDate:todayStr(),days:90,startWeight:240,goalWeight:190,height:71,theme:"auto"};
 function loadS(){var s={};try{s=JSON.parse(localStorage.getItem(KEY_S)||"null")||null}catch(e){s=null}
-  if(!s){s=Object.assign({},DEF_S);localStorage.setItem(KEY_S,JSON.stringify(s))}
+  if(!s){s=Object.assign({},DEF_S);localStorage.setItem(KEY_S,JSON.stringify(s));mirror(KEY_S)}
   return Object.assign({},DEF_S,s)}
 var entries=loadE(), settings=loadS();
 function sorted(){return Object.keys(entries).sort().map(function(k){return entries[k]})}
@@ -553,11 +570,13 @@ function renderSettings(){$("setStart").value=settings.startDate;$("setDays").va
   var bytes=(localStorage.getItem(KEY_E)||"").length;$("storageInfo").textContent=Object.keys(entries).length+" entries · about "+f1(bytes/1024)+" KB stored on this device."}
 $("setSave").addEventListener("click",function(){var sd=toEn($("setStart").value).trim();if(!parseD(sd)){alert("Start date must be YYYY-MM-DD");return}
   settings.startDate=sd;settings.days=Math.max(1,Math.round(num($("setDays").value)||90));settings.startWeight=num($("setStartW").value)||240;settings.goalWeight=num($("setGoalW").value)||settings.goalWeight;settings.height=num($("setHeight").value)||71;settings.theme=$("setTheme").value;
-  localStorage.setItem(KEY_S,JSON.stringify(settings));applyTheme();toast("Settings saved ✔")});
-$("setTheme").addEventListener("change",function(){settings.theme=this.value;applyTheme();localStorage.setItem(KEY_S,JSON.stringify(settings))});
+  (localStorage.setItem(KEY_S,JSON.stringify(settings)),mirror(KEY_S));applyTheme();toast("Settings saved ✔")});
+$("setTheme").addEventListener("change",function(){settings.theme=this.value;applyTheme();(localStorage.setItem(KEY_S,JSON.stringify(settings)),mirror(KEY_S))});
 
 /* ---------- export / import ---------- */
-function download(name,text,type){var blob=new Blob([text],{type:type});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(url);a.remove()},1500)}
+function download(name,text,type){
+  if(NATIVE&&PL.Filesystem&&PL.Share){PL.Filesystem.writeFile({path:name,data:text,directory:"CACHE",encoding:"utf8"}).then(function(r){return PL.Share.share({title:name,text:"Carnivore Tracker export",files:[r.uri],dialogTitle:"Save or share "+name})}).catch(function(e){if(!/cancel/i.test(String(e&&e.message)))alert("Export failed: "+(e&&e.message||e))});return}
+var blob=new Blob([text],{type:type});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(url);a.remove()},1500)}
 function stamp(){return todayStr()}
 $("expJson").addEventListener("click",function(){download("carnivore90-backup-"+stamp()+".json",JSON.stringify({app:"carnivore90",version:1,exportedAt:new Date().toISOString(),settings:settings,entries:sorted()},null,2),"application/json");toast("JSON exported")});
 var CSVCOLS=["date","weight","waist","sugarFasting","sugarPost","ketones","bpSys","bpDia","hr","mood","energy","clarity","sleepHours","sleepQuality","cravings","fastHours","omad","waterFast","meals","water","electrolytes","meds","metforminDose","medsCustom","walkMin","weights","symptoms","notes","hasPhoto"];
@@ -571,18 +590,42 @@ $("impFile").addEventListener("change",function(){var f=this.files&&this.files[0
     var valid=arr.filter(function(e){return e&&parseD(e.date)});
     var replace=Object.keys(entries).length&&confirm("Import "+valid.length+" entries.\n\nOK = REPLACE all current data\nCancel = MERGE (imported entries overwrite same dates)");
     if(replace)entries={};valid.forEach(function(e){entries[e.date]=e});
-    if(o.settings&&typeof o.settings==="object"&&confirm("Also restore settings (start date, weights) from the backup?")){settings=Object.assign({},DEF_S,o.settings);localStorage.setItem(KEY_S,JSON.stringify(settings));applyTheme()}
+    if(o.settings&&typeof o.settings==="object"&&confirm("Also restore settings (start date, weights) from the backup?")){settings=Object.assign({},DEF_S,o.settings);(localStorage.setItem(KEY_S,JSON.stringify(settings)),mirror(KEY_S));applyTheme()}
     saveE();renderSettings();toast("Imported "+valid.length+" entries ✔")}catch(err){alert("Import failed: "+err.message)}};rd.readAsText(f);this.value=""});
 $("clearAll").addEventListener("click",function(){if(!confirm("Delete ALL entries from this device? Export a backup first!"))return;if(!confirm("Are you absolutely sure? This cannot be undone."))return;
   entries={};saveE();editing=null;renderSettings();toast("All data deleted")});
 
 /* expose small API for testing/debug */
-window.Carnivore90={get entries(){return entries},reload:function(){entries=loadE();settings=loadS();renderDash()}};
+window.Carnivore90={get entries(){return entries},reload:function(){entries=loadE();settings=loadS();applyTheme();renderDash()}};
+
+/* ---------- disclaimer (first run) ---------- */
+var KEY_D="carnivore90_disclaimer_ok";
+function showDisc(){$("disclaimer").hidden=false}
+$("discOk").addEventListener("click",function(){$("disclaimer").hidden=true;localStorage.setItem(KEY_D,"1");mirror(KEY_D)});
+$("showDisc").addEventListener("click",showDisc);
+if(!localStorage.getItem(KEY_D))showDisc();
+
+/* ---------- native (Capacitor) integration ---------- */
+if(NATIVE){
+  if(PL.App)PL.App.addListener("backButton",function(){
+    if(!$("disclaimer").hidden&&localStorage.getItem(KEY_D)){$("disclaimer").hidden=true;return}
+    if($("alertArea").innerHTML){$("alertArea").innerHTML="";return}
+    var cur=document.querySelector(".view.active");
+    if(cur&&cur.id!=="v-dash"){show("dash");return}
+    PL.App.exitApp();
+  });
+  /* if WebView storage was wiped but the native mirror survived, restore it */
+  if(PL.Preferences&&!Object.keys(entries).length){
+    Promise.all([KEY_E,KEY_S,KEY_D].map(function(k){return PL.Preferences.get({key:k})})).then(function(r){
+      var e=r[0]&&r[0].value;if(e&&e!=="{}"&&e.length>2){localStorage.setItem(KEY_E,e);if(r[1]&&r[1].value)localStorage.setItem(KEY_S,r[1].value);if(r[2]&&r[2].value){localStorage.setItem(KEY_D,"1");$("disclaimer").hidden=true}
+        window.Carnivore90.reload();toast("Data restored from device backup")}}).catch(function(){});
+  }
+}
 
 /* ---------- init ---------- */
 loadForm(todayStr());
 var h=(location.hash||"").replace("#","");show(["dash","log","hist","set"].indexOf(h)>=0?h:"dash");
-if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+if(!NATIVE&&"serviceWorker" in navigator&&/^https?:$/.test(location.protocol)){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
 })();
 </script>
 </body>
