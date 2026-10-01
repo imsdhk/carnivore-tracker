@@ -607,6 +607,7 @@ if(!localStorage.getItem(KEY_D))showDisc();
 
 /* ---------- native (Capacitor) integration ---------- */
 if(NATIVE){
+  if(PL.App&&PL.App.removeAllListeners){try{PL.App.removeAllListeners()}catch(e){}}
   if(PL.App)PL.App.addListener("backButton",function(){
     if(!$("disclaimer").hidden&&localStorage.getItem(KEY_D)){$("disclaimer").hidden=true;return}
     if($("alertArea").innerHTML){$("alertArea").innerHTML="";return}
