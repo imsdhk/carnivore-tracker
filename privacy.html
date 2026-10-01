@@ -56,5 +56,11 @@ h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:22px 0 6px}
 <h2>Contact</h2>
 <p>Developer: [developer name to be added]<br>Email: [contact email to be added]</p>
 </main>
+<script>
+/* In the Android app: hardware back returns to the tracker */
+(function(){var C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.App){
+  C.Plugins.App.removeAllListeners&&C.Plugins.App.removeAllListeners();
+  C.Plugins.App.addListener("backButton",function(){location.href="index.html"});}})();
+</script>
 </body>
 </html>
